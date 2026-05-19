@@ -1,0 +1,23 @@
+Total sentences: 18
+Declarative (.): 13
+Interrogative (?): 3
+Imperative (!): 2
+Average sentence length (chars): 19.44
+Average word length (chars): 3.97
+
+Smiley count: 4
+
+Words containing letters f-y:
+Long, I, like, Buy, favorite, Short, letters, for, color, EU
+
+Prices extracted:
+USD: 23.78 USD, 002 USD
+RUR: 100 RUR
+EU: 50.5 EU
+
+Words shorter than 7 characters: 67
+
+Shortest word ending with 'a': zebra
+
+Words sorted by length (descending):
+extraordinary, unbelievable, available, favorite, letters, product, Invalid, yellow, smiley, Python, Short, color, Hello, today, world

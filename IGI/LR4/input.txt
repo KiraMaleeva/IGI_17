@@ -1,0 +1,7 @@
+Hello world! How are you today? This is a test text.
+Buy this product for 23.78 USD or 100 RUR. Also available for 50.5 EU.
+Check this smiley: :-) and this one: ;----[[[[[. Also :(( and ;-).
+Words with letters: fox, yellow, zebra, apple. Apple ends with a.
+Short words: a, an, the. Long words: extraordinary, unbelievable.
+Invalid price: 22 UDD, 0.002 USD.
+What is your favorite color? I like blue! Do you like Python?
