@@ -1,0 +1,12 @@
+{% extends 'core/base.html' %}
+{% block title %}Словарь терминов{% endblock %}
+{% block content %}
+<h2>Словарь терминов</h2>
+{% for entry in entries %}
+<div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
+    <h4>{{ entry.question }}</h4>
+    <p>{{ entry.answer }}</p>
+    <p><small>Добавлено: {{ entry.added_at|date:"d/m/Y" }}</small></p>
+</div>
+{% endfor %}
+{% endblock %}

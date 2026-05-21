@@ -1,0 +1,12 @@
+{% extends 'core/base.html' %}
+{% block title %}Отзывы{% endblock %}
+{% block content %}
+<h2>Отзывы</h2>
+{% for review in reviews %}
+<div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
+    <h4>{{ review.author_name }} — {{ review.rating }}★</h4>
+    <p>{{ review.text }}</p>
+    <p><small>{{ review.date|date:"d/m/Y" }}</small></p>
+</div>
+{% endfor %}
+{% endblock %}

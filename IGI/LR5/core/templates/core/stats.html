@@ -1,0 +1,41 @@
+{% extends 'core/base.html' %}
+{% block title %}Статистика{% endblock %}
+{% block content %}
+<h2>Статистика</h2>
+
+<h3>Тайм-зона</h3>
+<p>Текущее время UTC: {{ now_utc|date:"d/m/Y H:i:s" }}</p>
+<p>Местное время (Europe/Minsk): {{ now_local|date:"d/m/Y H:i:s" }}</p>
+
+<h4>Календарь (текстовый)</h4>
+<pre>{{ calendar }}</pre>
+
+<h3>Статистика заказов</h3>
+<p>Всего заказов: {{ total_orders }}</p>
+<p>Всего клиентов: {{ total_clients }}</p>
+<p>Средняя цена услуги: {{ avg_price|floatformat:2 }} руб.</p>
+
+<h3>Популярные категории</h3>
+<ul>
+{% for type in popular_types %}
+    <li>{{ type.name }} — {{ type.service_count }} услуг</li>
+{% endfor %}
+</ul>
+
+<h3>API: Погода в Минске</h3>
+{% if weather %}
+<p>Температура: {{ weather.main.temp }}°C</p>
+<p>Описание: {{ weather.weather.0.description }}</p>
+{% else %}
+<p>Не удалось загрузить данные о погоде</p>
+{% endif %}
+
+<h3>API: Курс валют (USD)</h3>
+{% if currency %}
+<p>1 USD = {{ currency.rates.BYN|floatformat:2 }} BYN</p>
+<p>1 USD = {{ currency.rates.EUR|floatformat:2 }} EUR</p>
+{% else %}
+<p>Не удалось загрузить курс валют</p>
+{% endif %}
+
+{% endblock %}

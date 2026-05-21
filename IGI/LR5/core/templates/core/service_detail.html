@@ -1,0 +1,18 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ object.name }}{% endblock %}
+
+{% block content %}
+<h2>{{ object.name }}</h2>
+<p><strong>Цена:</strong> {{ object.price }} руб.</p>
+<p><strong>Категория:</strong> {{ object.service_type }}</p>
+
+<p><a href="{% url 'service-list' %}">← Назад к списку</a></p>
+
+{% if user.is_authenticated %}
+<p>
+    <a href="{% url 'service-edit' object.pk %}">Редактировать</a> |
+    <a href="{% url 'service-delete' object.pk %}">Удалить</a>
+</p>
+{% endif %}
+{% endblock %}

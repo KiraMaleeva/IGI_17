@@ -1,0 +1,11 @@
+{% extends 'core/base.html' %}
+{% block title %}О компании{% endblock %}
+{% block content %}
+<h2>О компании</h2>
+{% if info %}
+<p>{{ info.text|linebreaks }}</p>
+<p><small>Обновлено: {{ info.updated_at|date:"d/m/Y H:i" }}</small></p>
+{% else %}
+<p>Информация отсутствует.</p>
+{% endif %}
+{% endblock %}

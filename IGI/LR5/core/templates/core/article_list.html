@@ -1,0 +1,12 @@
+{% extends 'core/base.html' %}
+{% block title %}Новости{% endblock %}
+{% block content %}
+<h2>Новости</h2>
+{% for article in articles %}
+<div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
+    <h3>{{ article.title }}</h3>
+    <p>{{ article.summary }}</p>
+    <p><small>{{ article.published|date:"d/m/Y" }}</small></p>
+</div>
+{% endfor %}
+{% endblock %}

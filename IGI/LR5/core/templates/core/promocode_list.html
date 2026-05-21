@@ -1,0 +1,12 @@
+{% extends 'core/base.html' %}
+{% block title %}Промокоды{% endblock %}
+{% block content %}
+<h2>Промокоды</h2>
+{% for promo in promocodes %}
+<div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
+    <h3>{{ promo.code }}</h3>
+    <p>Скидка: {{ promo.discount }}%</p>
+    <p>Статус: {% if promo.is_active %}Активен{% else %}Архив{% endif %}</p>
+</div>
+{% endfor %}
+{% endblock %}

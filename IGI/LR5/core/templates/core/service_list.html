@@ -1,0 +1,56 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Услуги{% endblock %}
+
+{% block content %}
+<h2>Наши услуги</h2>
+
+<!-- Поиск и сортировка -->
+<form method="get">
+    <input type="text" name="q" placeholder="Поиск..." value="{{ request.GET.q }}">
+    <select name="sort">
+        <option value="name">По названию</option>
+        <option value="price" {% if request.GET.sort == 'price' %}selected{% endif %}>Дешевле</option>
+        <option value="-price" {% if request.GET.sort == '-price' %}selected{% endif %}>Дороже</option>
+    </select>
+    <button type="submit">Найти</button>
+    <a href="{% url 'service-list' %}">Сбросить</a>
+</form>
+
+{% if user.is_authenticated %}
+<p><a href="{% url 'service-add' %}">➕ Добавить услугу</a></p>
+{% endif %}
+
+<hr>
+
+{% for service in services %}
+<div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
+    <h3>{{ service.name }}</h3>
+    <p>Цена: {{ service.price }} руб.</p>
+    <p>Категория: {{ service.service_type }}</p>
+    <a href="{% url 'service-detail' service.pk %}">Подробнее</a>
+    {% if user.is_authenticated %}
+    | <a href="{% url 'service-edit' service.pk %}">Редактировать</a>
+    | <a href="{% url 'service-delete' service.pk %}">Удалить</a>
+    {% endif %}
+</div>
+{% empty %}
+<p>Услуги не найдены.</p>
+{% endfor %}
+
+<!-- Пагинация -->
+{% if is_paginated %}
+<div>
+    {% if page_obj.has_previous %}
+    <a href="?page=1">Первая</a>
+    <a href="?page={{ page_obj.previous_page_number }}">Назад</a>
+    {% endif %}
+    Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}">Вперёд</a>
+    <a href="?page={{ page_obj.paginator.num_pages }}">Последняя</a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

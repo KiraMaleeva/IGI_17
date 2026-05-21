@@ -1,0 +1,14 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{% if object %}Редактировать{% else %}Добавить{% endif %} услугу{% endblock %}
+
+{% block content %}
+<h2>{% if object %}Редактировать{% else %}Добавить{% endif %} услугу</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Сохранить</button>
+    <a href="{% url 'service-list' %}">Отмена</a>
+</form>
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Создать заказ{% endblock %}
+
+{% block content %}
+<h2>Создать заказ</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Создать</button>
+    <a href="{% url 'order-list' %}">Отмена</a>
+</form>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Главная - Автосервис{% endblock %}
+
+{% block content %}
+<h2>Добро пожаловать в Автосервис "Профи"</h2>
+
+<p>Всего услуг: {{ services_count }}</p>
+<p>Всего заказов: {{ orders_count }}</p>
+
+{% if latest_article %}
+<h3>Последняя новость:</h3>
+<h4>{{ latest_article.title }}</h4>
+<p>{{ latest_article.summary }}</p>
+<p><small>Опубликовано: {{ latest_article.published|date:"d/m/Y H:i" }}</small></p>
+{% endif %}
+
+<p><a href="{% url 'service-list' %}">Посмотреть все услуги →</a></p>
+{% endblock %}
