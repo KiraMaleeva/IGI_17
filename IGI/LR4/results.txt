@@ -8,7 +8,7 @@ Average word length (chars): 3.97
 Smiley count: 4
 
 Words containing letters f-y:
-Long, I, like, Buy, favorite, Short, letters, for, color, EU
+Check, blue, This, Long, product, your, extraordinary, an, words, EU
 
 Prices extracted:
 USD: 23.78 USD, 002 USD
@@ -20,4 +20,4 @@ Words shorter than 7 characters: 67
 Shortest word ending with 'a': zebra
 
 Words sorted by length (descending):
-extraordinary, unbelievable, available, favorite, letters, product, Invalid, yellow, smiley, Python, Short, color, Hello, today, world
+extraordinary, unbelievable, available, favorite, product, letters, Invalid, Python, yellow, smiley, Check, words, zebra, Short, today
