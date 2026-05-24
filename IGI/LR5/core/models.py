@@ -2,7 +2,14 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator, MinValueValidator
 from django.utils import timezone
+from django.core.exceptions import ValidationError
+from datetime import date
 
+def validate_age_18(birth_date):
+    today = date.today()
+    age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
+    if age < 18:
+        raise ValidationError('Возраст должен быть не менее 18 лет')
 
 phone_validator = RegexValidator(
     regex=r'^\+375 \(2[59]\) \d{3}-\d{2}-\d{2}$',
@@ -66,7 +73,7 @@ class Master(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE,
                                 verbose_name='Пользователь')
     phone = models.CharField('Телефон', max_length=20, validators=[phone_validator])
-    birth_date = models.DateField('Дата рождения')
+    birth_date = models.DateField('Дата рождения', validators=[validate_age_18])
     specializations = models.ManyToManyField(Specialization,
                                              verbose_name='Специализации')
 
@@ -82,7 +89,7 @@ class Client(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE,
                                 verbose_name='Пользователь')
     phone = models.CharField('Телефон', max_length=20, validators=[phone_validator])
-    birth_date = models.DateField('Дата рождения')
+    birth_date = models.DateField('Дата рождения', validators=[validate_age_18])
     car_type = models.ForeignKey(CarType, on_delete=models.SET_NULL,
                                  null=True, blank=True, verbose_name='Тип авто')
 

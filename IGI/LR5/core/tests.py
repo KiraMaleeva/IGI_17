@@ -88,7 +88,7 @@ class ViewsTest(TestCase):
     """Тесты views"""
     
     def setUp(self):
-        self.client = Client()
+        self.test_client = self.client  # сохраняем тестовый клиент Django
         self.user = User.objects.create_user('testuser', password='testpass')
         
         self.service_type = ServiceType.objects.create(name='Диагностика')
@@ -99,36 +99,36 @@ class ViewsTest(TestCase):
         )
     
     def test_home_page(self):
-        response = self.client.get(reverse('home'))
+        response = self.test_client.get(reverse('home'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Автосервис')
     
     def test_service_list(self):
-        response = self.client.get(reverse('service-list'))
+        response = self.test_client.get(reverse('service-list'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Тестовая услуга')
     
     def test_service_detail(self):
-        response = self.client.get(reverse('service-detail', args=[self.service.pk]))
+        response = self.test_client.get(reverse('service-detail', args=[self.service.pk]))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Тестовая услуга')
     
     def test_service_create_requires_login(self):
-        response = self.client.get(reverse('service-add'))
+        response = self.test_client.get(reverse('service-add'))
         self.assertEqual(response.status_code, 302)  # редирект на логин
     
     def test_service_create_authenticated(self):
-        self.client.login(username='testuser', password='testpass')
-        response = self.client.get(reverse('service-add'))
+        self.test_client.login(username='testuser', password='testpass')
+        response = self.test_client.get(reverse('service-add'))
         self.assertEqual(response.status_code, 200)
     
     def test_service_search(self):
-        response = self.client.get(reverse('service-list') + '?q=Тестовая')
+        response = self.test_client.get(reverse('service-list') + '?q=Тестовая')
         self.assertContains(response, 'Тестовая услуга')
     
     def test_service_sort(self):
         Service.objects.create(name='Другая услуга', price=200, service_type=self.service_type)
-        response = self.client.get(reverse('service-list') + '?sort=-price')
+        response = self.test_client.get(reverse('service-list') + '?sort=-price')
         self.assertEqual(response.status_code, 200)
 
 
@@ -212,18 +212,21 @@ class MasterModelTest(TestCase):
 class URLTest(TestCase):
     """Тесты доступности URL"""
     
+    def setUp(self):
+        self.test_client = self.client
+    
     def test_home_url(self):
-        response = self.client.get('/')
+        response = self.test_client.get('/')
         self.assertEqual(response.status_code, 200)
     
     def test_services_url(self):
-        response = self.client.get('/services/')
+        response = self.test_client.get('/services/')
         self.assertEqual(response.status_code, 200)
     
     def test_news_url(self):
-        response = self.client.get('/news/')
+        response = self.test_client.get('/news/')
         self.assertEqual(response.status_code, 200)
     
     def test_contacts_url(self):
-        response = self.client.get('/contacts/')
+        response = self.test_client.get('/contacts/')
         self.assertEqual(response.status_code, 200)

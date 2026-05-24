@@ -6,3 +6,40 @@ Not Found: /favicon.ico
 C:\Users\MSI\453501_Maleeva_17\IGI\LR5\core\urls.py changed, reloading.
 Watching for file changes with StatReloader
 Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+√лавна€ страница загружена
+Not Found: /favicon.ico
+√лавна€ страница загружена
+Starting new HTTPS connection (1): api.openweathermap.org:443
+https://api.openweathermap.org:443 "GET /data/2.5/weather?q=Minsk&appid=d45459e22cce12864954d7a17e0619ff&units=metric&lang=ru HTTP/1.1" 401 108
+API погоды вернул код: 401
+Starting new HTTPS connection (1): api.exchangerate-api.com:443
+https://api.exchangerate-api.com:443 "GET /v4/latest/USD HTTP/1.1" 200 None
+API курса валют успешно загружен
+Watching for file changes with StatReloader
+√лавна€ страница загружена
+Not Found: /favicon.ico
+Starting new HTTPS connection (1): api.openweathermap.org:443
+https://api.openweathermap.org:443 "GET /data/2.5/weather?q=Minsk&appid=d45459e22cce12864954d7a17e0619ff&units=metric&lang=ru HTTP/1.1" 200 530
+API погоды успешно загружен
+Starting new HTTPS connection (1): api.exchangerate-api.com:443
+https://api.exchangerate-api.com:443 "GET /v4/latest/USD HTTP/1.1" 200 None
+API курса валют успешно загружен
+Watching for file changes with StatReloader
+√лавна€ страница загружена
+√лавна€ страница загружена
+ѕоиск услуг по запросу: “естова€
+Watching for file changes with StatReloader
+√лавна€ страница загружена
+ѕоиск услуг по запросу: замена
+ѕоиск услуг по запросу: замена тормозных
+ѕоиск услуг по запросу: замена тормозных колодок
+ѕоиск услуг по запросу: замена тормозных колодок
+ѕоиск услуг по запросу: «амена
+ѕоиск услуг по запросу: «амена
+Starting new HTTPS connection (1): api.openweathermap.org:443
+https://api.openweathermap.org:443 "GET /data/2.5/weather?q=Minsk&appid=d45459e22cce12864954d7a17e0619ff&units=metric&lang=ru HTTP/1.1" 200 525
+API погоды успешно загружен
+Starting new HTTPS connection (1): api.exchangerate-api.com:443
+https://api.exchangerate-api.com:443 "GET /v4/latest/USD HTTP/1.1" 200 None
+API курса валют успешно загружен

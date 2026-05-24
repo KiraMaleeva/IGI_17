@@ -5,7 +5,11 @@ from django.db.models import Q, Avg, Count, Sum
 from django.utils import timezone
 import calendar as cal
 import requests
+import statistics
+import logging
 from .models import *
+
+logger = logging.getLogger(__name__)
 
 
 # ───── Главная страница ─────
@@ -17,6 +21,7 @@ class HomeView(TemplateView):
         ctx['latest_article'] = Article.objects.first()  # последняя статья
         ctx['services_count'] = Service.objects.count()
         ctx['orders_count'] = Order.objects.count()
+        logger.info("Главная страница загружена")
         return ctx
 
 
@@ -33,6 +38,7 @@ class ServiceListView(ListView):
         q = self.request.GET.get('q')
         if q:
             qs = qs.filter(Q(name__icontains=q) | Q(service_type__name__icontains=q))
+            logger.debug(f"Поиск услуг по запросу: {q}")
         # Сортировка
         sort = self.request.GET.get('sort', 'name')
         if sort in ['name', 'price', '-price']:
@@ -50,6 +56,10 @@ class ServiceCreateView(LoginRequiredMixin, CreateView):
     fields = ['name', 'price', 'service_type']
     template_name = 'core/service_form.html'
     success_url = reverse_lazy('service-list')
+    
+    def form_valid(self, form):
+        logger.info(f"Создана новая услуга: {form.cleaned_data['name']} пользователем {self.request.user}")
+        return super().form_valid(form)
 
 
 class ServiceUpdateView(LoginRequiredMixin, UpdateView):
@@ -57,12 +67,20 @@ class ServiceUpdateView(LoginRequiredMixin, UpdateView):
     fields = ['name', 'price', 'service_type']
     template_name = 'core/service_form.html'
     success_url = reverse_lazy('service-list')
+    
+    def form_valid(self, form):
+        logger.info(f"Услуга обновлена: {form.cleaned_data['name']}")
+        return super().form_valid(form)
 
 
 class ServiceDeleteView(LoginRequiredMixin, DeleteView):
     model = Service
     template_name = 'core/service_confirm_delete.html'
     success_url = reverse_lazy('service-list')
+    
+    def delete(self, request, *args, **kwargs):
+        logger.warning(f"Услуга удалена: {self.get_object().name}")
+        return super().delete(request, *args, **kwargs)
 
 
 # ───── Заказы ─────
@@ -77,6 +95,10 @@ class OrderCreateView(LoginRequiredMixin, CreateView):
     fields = ['client', 'master', 'services', 'status']
     template_name = 'core/order_form.html'
     success_url = reverse_lazy('order-list')
+    
+    def form_valid(self, form):
+        logger.info(f"Создан новый заказ для клиента: {form.cleaned_data['client']}")
+        return super().form_valid(form)
 
 
 # ───── Общие страницы ─────
@@ -141,31 +163,56 @@ class StatsView(LoginRequiredMixin, TemplateView):
         ctx['now_local'] = timezone.localtime(timezone.now())
         ctx['calendar'] = cal.month(timezone.now().year, timezone.now().month)
         
-        # Статистика
+        # Статистика по заказам и клиентам
         ctx['total_orders'] = Order.objects.count()
         ctx['total_clients'] = Client.objects.count()
-        ctx['avg_price'] = Service.objects.aggregate(Avg('price'))['price__avg']
         
-        # Популярные категории
+        # Статистика по ценам (среднее и медиана)
+        prices = list(Service.objects.values_list('price', flat=True))
+        if prices:
+            ctx['avg_price'] = statistics.mean(prices)
+            ctx['median_price'] = statistics.median(prices)
+        else:
+            ctx['avg_price'] = 0
+            ctx['median_price'] = 0
+        
+        # Популярные категории услуг (по количеству услуг)
         ctx['popular_types'] = ServiceType.objects.annotate(
             service_count=Count('service')
         ).order_by('-service_count')
         
+        # Самый популярный тип услуг (по количеству в заказах)
+        ctx['most_ordered_type'] = ServiceType.objects.annotate(
+            order_count=Count('service__order')
+        ).order_by('-order_count').first()
+        
         # API 1: Погода (OpenWeatherMap)
         try:
-            weather_key = 'YOUR_API_KEY'  # замени на свой ключ
+            weather_key = 'd45459e22cce12864954d7a17e0619ff'
             weather_url = f'https://api.openweathermap.org/data/2.5/weather?q=Minsk&appid={weather_key}&units=metric&lang=ru'
             weather_response = requests.get(weather_url, timeout=5)
-            ctx['weather'] = weather_response.json() if weather_response.status_code == 200 else None
-        except:
+            if weather_response.status_code == 200:
+                ctx['weather'] = weather_response.json()
+                logger.info("API погоды успешно загружен")
+            else:
+                ctx['weather'] = None
+                logger.warning(f"API погоды вернул код: {weather_response.status_code}")
+        except Exception as e:
             ctx['weather'] = None
+            logger.error(f"Ошибка загрузки API погоды: {e}")
         
         # API 2: Курс валют
         try:
             currency_url = 'https://api.exchangerate-api.com/v4/latest/USD'
             currency_response = requests.get(currency_url, timeout=5)
-            ctx['currency'] = currency_response.json() if currency_response.status_code == 200 else None
-        except:
+            if currency_response.status_code == 200:
+                ctx['currency'] = currency_response.json()
+                logger.info("API курса валют успешно загружен")
+            else:
+                ctx['currency'] = None
+                logger.warning(f"API валют вернул код: {currency_response.status_code}")
+        except Exception as e:
             ctx['currency'] = None
+            logger.error(f"Ошибка загрузки API валют: {e}")
         
         return ctx
