@@ -1,218 +1,274 @@
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
-from django.db.models import Q, Avg, Count, Sum
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
+from django.db.models import Q, Avg, Count
 from django.utils import timezone
+from django.core.paginator import Paginator
 import calendar as cal
 import requests
 import statistics
 import logging
 from .models import *
+from .forms import ServiceForm, OrderForm, ReviewForm
 
 logger = logging.getLogger(__name__)
 
 
-# ───── Главная страница ─────
-class HomeView(TemplateView):
-    template_name = 'core/home.html'
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx['latest_article'] = Article.objects.first()  # последняя статья
-        ctx['services_count'] = Service.objects.count()
-        ctx['orders_count'] = Order.objects.count()
-        logger.info("Главная страница загружена")
-        return ctx
+# ───── Главная ─────
+def home(request):
+    context = {
+        'latest_article': Article.objects.first(),
+        'services_count': Service.objects.count(),
+        'orders_count': Order.objects.count(),
+    }
+    logger.info("Главная страница загружена")
+    return render(request, 'core/home.html', context)
 
 
-# ───── Услуги (CRUD) ─────
-class ServiceListView(ListView):
-    model = Service
-    template_name = 'core/service_list.html'
-    context_object_name = 'services'
-    paginate_by = 10
-
-    def get_queryset(self):
-        qs = super().get_queryset()
-        # Поиск
-        q = self.request.GET.get('q')
-        if q:
-            qs = qs.filter(Q(name__icontains=q) | Q(service_type__name__icontains=q))
-            logger.debug(f"Поиск услуг по запросу: {q}")
-        # Сортировка
-        sort = self.request.GET.get('sort', 'name')
-        if sort in ['name', 'price', '-price']:
-            qs = qs.order_by(sort)
-        return qs
-
-
-class ServiceDetailView(DetailView):
-    model = Service
-    template_name = 'core/service_detail.html'
-
-
-class ServiceCreateView(LoginRequiredMixin, CreateView):
-    model = Service
-    fields = ['name', 'price', 'service_type']
-    template_name = 'core/service_form.html'
-    success_url = reverse_lazy('service-list')
+# ───── CRUD для Services (Function-Based) ─────
+def service_list(request):
+    services = Service.objects.all()
     
-    def form_valid(self, form):
-        logger.info(f"Создана новая услуга: {form.cleaned_data['name']} пользователем {self.request.user}")
-        return super().form_valid(form)
-
-
-class ServiceUpdateView(LoginRequiredMixin, UpdateView):
-    model = Service
-    fields = ['name', 'price', 'service_type']
-    template_name = 'core/service_form.html'
-    success_url = reverse_lazy('service-list')
+    # Поиск
+    q = request.GET.get('q')
+    if q:
+        services = services.filter(Q(name__icontains=q) | Q(service_type__name__icontains=q))
+        logger.debug(f"Поиск услуг по запросу: {q}")
     
-    def form_valid(self, form):
-        logger.info(f"Услуга обновлена: {form.cleaned_data['name']}")
-        return super().form_valid(form)
-
-
-class ServiceDeleteView(LoginRequiredMixin, DeleteView):
-    model = Service
-    template_name = 'core/service_confirm_delete.html'
-    success_url = reverse_lazy('service-list')
+    # Сортировка
+    sort = request.GET.get('sort', 'name')
+    if sort in ['name', 'price', '-price']:
+        services = services.order_by(sort)
     
-    def delete(self, request, *args, **kwargs):
-        logger.warning(f"Услуга удалена: {self.get_object().name}")
-        return super().delete(request, *args, **kwargs)
+    # Пагинация
+    paginator = Paginator(services, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    return render(request, 'core/service_list.html', {'page_obj': page_obj, 'services': page_obj})
+
+
+def service_detail(request, pk):
+    service = get_object_or_404(Service, pk=pk)
+    return render(request, 'core/service_detail.html', {'object': service})
+
+
+@login_required
+def service_create(request):
+    if request.method == 'POST':
+        form = ServiceForm(request.POST)
+        if form.is_valid():
+            service = form.save()
+            logger.info(f"Создана новая услуга: {service.name} пользователем {request.user}")
+            return redirect('service-list')
+    else:
+        form = ServiceForm()
+    return render(request, 'core/service_form.html', {'form': form})
+
+
+@login_required
+def service_update(request, pk):
+    service = get_object_or_404(Service, pk=pk)
+    if request.method == 'POST':
+        form = ServiceForm(request.POST, instance=service)
+        if form.is_valid():
+            form.save()
+            logger.info(f"Услуга обновлена: {service.name}")
+            return redirect('service-list')
+    else:
+        form = ServiceForm(instance=service)
+    return render(request, 'core/service_form.html', {'form': form, 'object': service})
+
+
+@login_required
+def service_delete(request, pk):
+    service = get_object_or_404(Service, pk=pk)
+    if request.method == 'POST':
+        logger.warning(f"Услуга удалена: {service.name}")
+        service.delete()
+        return redirect('service-list')
+    return render(request, 'core/service_confirm_delete.html', {'object': service})
 
 
 # ───── Заказы ─────
-class OrderListView(LoginRequiredMixin, ListView):
-    model = Order
-    template_name = 'core/order_list.html'
-    context_object_name = 'orders'
+@login_required
+def order_list(request):
+    orders = Order.objects.all()
+    return render(request, 'core/order_list.html', {'orders': orders})
 
 
-class OrderCreateView(LoginRequiredMixin, CreateView):
-    model = Order
-    fields = ['client', 'master', 'services', 'status']
-    template_name = 'core/order_form.html'
-    success_url = reverse_lazy('order-list')
-    
-    def form_valid(self, form):
-        logger.info(f"Создан новый заказ для клиента: {form.cleaned_data['client']}")
-        return super().form_valid(form)
+@login_required
+def order_create(request):
+    if request.method == 'POST':
+        form = OrderForm(request.POST)
+        if form.is_valid():
+            order = form.save()
+            logger.info(f"Создан новый заказ для клиента: {order.client}")
+            return redirect('order-list')
+    else:
+        form = OrderForm()
+    return render(request, 'core/order_form.html', {'form': form})
 
 
 # ───── Общие страницы ─────
-class ArticleListView(ListView):
-    model = Article
-    template_name = 'core/article_list.html'
-    context_object_name = 'articles'
+def article_list(request):
+    articles = Article.objects.all()
+    return render(request, 'core/article_list.html', {'articles': articles})
 
 
-class GlossaryListView(ListView):
-    model = GlossaryEntry
-    template_name = 'core/glossary_list.html'
-    context_object_name = 'entries'
+def glossary_list(request):
+    entries = GlossaryEntry.objects.all()
+    return render(request, 'core/glossary_list.html', {'entries': entries})
 
 
-class ContactListView(ListView):
-    model = Contact
-    template_name = 'core/contact_list.html'
-    context_object_name = 'contacts'
+def contact_list(request):
+    contacts = Contact.objects.all()
+    return render(request, 'core/contact_list.html', {'contacts': contacts})
 
 
-class ReviewListView(ListView):
-    model = Review
-    template_name = 'core/review_list.html'
-    context_object_name = 'reviews'
+def review_list(request):
+    reviews = Review.objects.all()
+    return render(request, 'core/review_list.html', {'reviews': reviews})
 
 
-class VacancyListView(ListView):
-    model = Vacancy
-    template_name = 'core/vacancy_list.html'
-    context_object_name = 'vacancies'
+@login_required
+def review_create(request):
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('review-list')
+    else:
+        form = ReviewForm()
+    return render(request, 'core/review_form.html', {'form': form})
 
 
-class PromoCodeListView(ListView):
-    model = PromoCode
-    template_name = 'core/promocode_list.html'
-    context_object_name = 'promocodes'
+def vacancy_list(request):
+    vacancies = Vacancy.objects.all()
+    return render(request, 'core/vacancy_list.html', {'vacancies': vacancies})
 
 
-class CompanyInfoView(TemplateView):
-    template_name = 'core/company_info.html'
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx['info'] = CompanyInfo.objects.first()
-        return ctx
+def promocode_list(request):
+    promocodes = PromoCode.objects.all()
+    return render(request, 'core/promocode_list.html', {'promocodes': promocodes})
 
 
-class PrivacyPolicyView(TemplateView):
-    template_name = 'core/privacy_policy.html'
+def company_info(request):
+    info = CompanyInfo.objects.first()
+    return render(request, 'core/company_info.html', {'info': info})
 
 
-# ───── Статистика + Тайм-зона + API ─────
-class StatsView(LoginRequiredMixin, TemplateView):
-    template_name = 'core/stats.html'
+def privacy_policy(request):
+    return render(request, 'core/privacy_policy.html')
 
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        
-        # Тайм-зона
-        ctx['now_utc'] = timezone.now()
-        ctx['now_local'] = timezone.localtime(timezone.now())
-        ctx['calendar'] = cal.month(timezone.now().year, timezone.now().month)
-        
-        # Статистика по заказам и клиентам
-        ctx['total_orders'] = Order.objects.count()
-        ctx['total_clients'] = Client.objects.count()
-        
-        # Статистика по ценам (среднее и медиана)
-        prices = list(Service.objects.values_list('price', flat=True))
-        if prices:
-            ctx['avg_price'] = statistics.mean(prices)
-            ctx['median_price'] = statistics.median(prices)
+
+# ───── Статистика ─────
+@login_required
+def stats_view(request):
+    context = {}
+    
+    # Тайм-зона
+    context['now_utc'] = timezone.now()
+    context['now_local'] = timezone.localtime(timezone.now())
+    context['calendar'] = cal.month(timezone.now().year, timezone.now().month)
+    
+    # Статистика
+    context['total_orders'] = Order.objects.count()
+    context['total_clients'] = Client.objects.count()
+    
+    # Цены услуг
+    prices = list(Service.objects.values_list('price', flat=True))
+    if prices:
+        context['avg_price'] = statistics.mean(prices)
+        context['median_price'] = statistics.median(prices)
+    else:
+        context['avg_price'] = 0
+        context['median_price'] = 0
+    
+    # Популярные категории
+    context['popular_types'] = ServiceType.objects.annotate(
+        service_count=Count('service')
+    ).order_by('-service_count')
+    
+    context['most_ordered_type'] = ServiceType.objects.annotate(
+        order_count=Count('service__order')
+    ).order_by('-order_count').first()
+    
+    # API погоды
+    try:
+        weather_url = 'https://wttr.in/Minsk?format=j1'
+        weather_response = requests.get(weather_url, timeout=5)
+        if weather_response.status_code == 200:
+            data = weather_response.json()
+            context['weather'] = {
+                'temp': data['current_condition'][0]['temp_C'],
+                'description': data['current_condition'][0]['weatherDesc'][0]['value']
+            }
+            logger.info("API погоды успешно загружен")
         else:
-            ctx['avg_price'] = 0
-            ctx['median_price'] = 0
-        
-        # Популярные категории услуг (по количеству услуг)
-        ctx['popular_types'] = ServiceType.objects.annotate(
-            service_count=Count('service')
-        ).order_by('-service_count')
-        
-        # Самый популярный тип услуг (по количеству в заказах)
-        ctx['most_ordered_type'] = ServiceType.objects.annotate(
-            order_count=Count('service__order')
-        ).order_by('-order_count').first()
-        
-        # API 1: Погода (OpenWeatherMap)
-        try:
-            weather_key = 'd45459e22cce12864954d7a17e0619ff'
-            weather_url = f'https://api.openweathermap.org/data/2.5/weather?q=Minsk&appid={weather_key}&units=metric&lang=ru'
-            weather_response = requests.get(weather_url, timeout=5)
-            if weather_response.status_code == 200:
-                ctx['weather'] = weather_response.json()
-                logger.info("API погоды успешно загружен")
-            else:
-                ctx['weather'] = None
-                logger.warning(f"API погоды вернул код: {weather_response.status_code}")
-        except Exception as e:
-            ctx['weather'] = None
-            logger.error(f"Ошибка загрузки API погоды: {e}")
-        
-        # API 2: Курс валют
-        try:
-            currency_url = 'https://api.exchangerate-api.com/v4/latest/USD'
-            currency_response = requests.get(currency_url, timeout=5)
-            if currency_response.status_code == 200:
-                ctx['currency'] = currency_response.json()
-                logger.info("API курса валют успешно загружен")
-            else:
-                ctx['currency'] = None
-                logger.warning(f"API валют вернул код: {currency_response.status_code}")
-        except Exception as e:
-            ctx['currency'] = None
-            logger.error(f"Ошибка загрузки API валют: {e}")
-        
-        return ctx
+            context['weather'] = None
+    except Exception as e:
+        context['weather'] = None
+        logger.error(f"Ошибка API погоды: {e}")
+    
+    # API валют
+    try:
+        currency_url = 'https://api.exchangerate-api.com/v4/latest/USD'
+        currency_response = requests.get(currency_url, timeout=5)
+        if currency_response.status_code == 200:
+            context['currency'] = currency_response.json()
+            logger.info("API курса валют успешно загружен")
+        else:
+            context['currency'] = None
+    except Exception as e:
+        context['currency'] = None
+        logger.error(f"Ошибка API валют: {e}")
+    
+    # Генерация графика (Matplotlib вместо Chart.js)
+    import matplotlib
+    matplotlib.use('Agg')  # Без GUI
+    import matplotlib.pyplot as plt
+    from io import BytesIO
+    import base64
+    
+    # Данные для графика
+    types = list(context['popular_types'])
+    labels = [t.name for t in types]
+    values = [t.service_count for t in types]
+    
+    # Создаём график
+    plt.figure(figsize=(10, 6))
+    plt.bar(labels, values, color='skyblue')
+    plt.xlabel('Тип услуги')
+    plt.ylabel('Количество')
+    plt.title('Популярные категории услуг')
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
+    
+    # Сохраняем в base64 для вставки в HTML
+    buffer = BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    image_png = buffer.getvalue()
+    buffer.close()
+    plt.close()
+    
+    graphic = base64.b64encode(image_png).decode('utf-8')
+    context['chart'] = graphic
+    
+    return render(request, 'core/stats.html', context)
+
+
+# ───── Регистрация ─────
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            logger.info(f"Новый пользователь зарегистрирован: {user.username}")
+            return redirect('home')
+    else:
+        form = UserCreationForm()
+    return render(request, 'registration/register.html', {'form': form})

@@ -25,6 +25,7 @@
                 | <a href="{% url 'stats' %}">Статистика</a>
                 | <a href="{% url 'logout' %}">Выйти ({{ user.username }})</a>
             {% else %}
+                | <a href="{% url 'register' %}">Регистрация</a>
                 | <a href="{% url 'login' %}">Войти</a>
             {% endif %}
         </nav>

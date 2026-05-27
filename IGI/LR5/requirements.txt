@@ -1,0 +1,8 @@
+Django==5.1.15
+pillow==12.2.0
+requests==2.34.2
+coverage==7.14.0
+matplotlib==3.10.0
+gunicorn==23.0.0
+dj-database-url==2.3.0
+whitenoise==6.10.0

@@ -3,29 +3,33 @@ from . import views
 
 urlpatterns = [
     # Главная
-    path('', views.HomeView.as_view(), name='home'),
+    path('', views.home, name='home'),
     
-    # Услуги (CRUD)
-    path('services/', views.ServiceListView.as_view(), name='service-list'),
-    path('services/<int:pk>/', views.ServiceDetailView.as_view(), name='service-detail'),
-    path('services/add/', views.ServiceCreateView.as_view(), name='service-add'),
-    path('services/<int:pk>/edit/', views.ServiceUpdateView.as_view(), name='service-edit'),
-    path('services/<int:pk>/delete/', views.ServiceDeleteView.as_view(), name='service-delete'),
+    # Регистрация
+    path('register/', views.register, name='register'),
     
-    # Заказы
-    path('orders/', views.OrderListView.as_view(), name='order-list'),
-    path('orders/add/', views.OrderCreateView.as_view(), name='order-add'),
+    # Services CRUD
+    path('services/', views.service_list, name='service-list'),
+    path('services/<int:pk>/', views.service_detail, name='service-detail'),
+    path('services/add/', views.service_create, name='service-add'),
+    path('services/<int:pk>/edit/', views.service_update, name='service-edit'),
+    path('services/<int:pk>/delete/', views.service_delete, name='service-delete'),
+    
+    # Orders
+    path('orders/', views.order_list, name='order-list'),
+    path('orders/add/', views.order_create, name='order-add'),
     
     # Общие страницы
-    path('news/', views.ArticleListView.as_view(), name='article-list'),
-    path('glossary/', views.GlossaryListView.as_view(), name='glossary-list'),
-    path('contacts/', views.ContactListView.as_view(), name='contact-list'),
-    path('reviews/', views.ReviewListView.as_view(), name='review-list'),
-    path('vacancies/', views.VacancyListView.as_view(), name='vacancy-list'),
-    path('promocodes/', views.PromoCodeListView.as_view(), name='promocode-list'),
-    path('about/', views.CompanyInfoView.as_view(), name='company-info'),
-    path('privacy/', views.PrivacyPolicyView.as_view(), name='privacy-policy'),
+    path('news/', views.article_list, name='article-list'),
+    path('glossary/', views.glossary_list, name='glossary-list'),
+    path('contacts/', views.contact_list, name='contact-list'),
+    path('reviews/', views.review_list, name='review-list'),
+    path('reviews/add/', views.review_create, name='review-add'),
+    path('vacancies/', views.vacancy_list, name='vacancy-list'),
+    path('promocodes/', views.promocode_list, name='promocode-list'),
+    path('about/', views.company_info, name='company-info'),
+    path('privacy/', views.privacy_policy, name='privacy-policy'),
     
     # Статистика
-    path('stats/', views.StatsView.as_view(), name='stats'),
+    path('stats/', views.stats_view, name='stats'),
 ]
