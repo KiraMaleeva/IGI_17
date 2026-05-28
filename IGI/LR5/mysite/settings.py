@@ -28,7 +28,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # ← ВАЖНО: после SecurityMiddleware
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # ← СРАЗУ после Security
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -89,11 +89,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Разные настройки для локальной разработки и продакшена
-if DEBUG:
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
-else:
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 
 # MEDIA FILES
@@ -103,11 +100,12 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # CLOUDINARY
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME', 'dprsdoowy'),
-    'API_KEY': os.getenv('CLOUDINARY_API_KEY', '422393287549515'),
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
     'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
 }
 
+# На продакшене (DEBUG=False) используем Cloudinary для медиа
 if not DEBUG:
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
@@ -120,10 +118,9 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
-        'file': {'class': 'logging.FileHandler', 'filename': BASE_DIR / 'debug.log'},
         'console': {'class': 'logging.StreamHandler'},
     },
-    'root': {'handlers': ['file', 'console'], 'level': 'DEBUG'},
+    'root': {'handlers': ['console'], 'level': 'INFO'},
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
