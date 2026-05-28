@@ -69,6 +69,24 @@ class ReviewForm(forms.ModelForm):
         model = Review
         fields = ['author_name', 'rating', 'text']
         widgets = {
-            'text': forms.Textarea(attrs={'rows': 4}),
-            'rating': forms.NumberInput(attrs={'min': 1, 'max': 5}),
+            'author_name': forms.TextInput(attrs={
+                'placeholder': 'Ваше имя',
+                'style': 'width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;'
+            }),
+            'rating': forms.NumberInput(attrs={
+                'min': 1,
+                'max': 5,
+                'placeholder': '1-5',
+                'style': 'width: 100px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;'
+            }),
+            'text': forms.Textarea(attrs={
+                'rows': 4,
+                'placeholder': 'Ваш отзыв о нашем автосервисе...',
+                'style': 'width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;'
+            }),
+        }
+        labels = {
+            'author_name': 'Ваше имя',
+            'rating': 'Оценка',
+            'text': 'Отзыв',
         }

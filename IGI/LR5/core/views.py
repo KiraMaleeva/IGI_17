@@ -310,20 +310,29 @@ def contact_list(request):
 
 
 def review_list(request):
-    reviews = Review.objects.all()
-    return render(request, 'core/review_list.html', {'reviews': reviews})
-
-
-@login_required
-def review_create(request):
-    if request.method == 'POST':
-        form = ReviewForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('review-list')
-    else:
-        form = ReviewForm()
-    return render(request, 'core/review_form.html', {'form': form})
+    reviews = Review.objects.all().order_by('-date')
+    form = None
+    
+    # Форма только для авторизованных
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            form = ReviewForm(request.POST)
+            if form.is_valid():
+                review = form.save(commit=False)
+                # Если у модели есть поле author (связь с User)
+                if hasattr(review, 'author'):
+                    review.author = request.user
+                review.save()
+                logger.info(f"Добавлен отзыв от {review.author_name}")
+                return redirect('review-list')
+        else:
+            form = ReviewForm()
+    
+    context = {
+        'reviews': reviews,
+        'form': form,
+    }
+    return render(request, 'core/review_list.html', context)
 
 
 def vacancy_list(request):

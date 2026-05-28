@@ -34,7 +34,6 @@ urlpatterns = [
     path('glossary/', views.glossary_list, name='glossary-list'),
     path('contacts/', views.contact_list, name='contact-list'),
     path('reviews/', views.review_list, name='review-list'),
-    path('reviews/add/', views.review_create, name='review-add'),
     path('vacancies/', views.vacancy_list, name='vacancy-list'),
     path('promocodes/', views.promocode_list, name='promocode-list'),
     path('about/', views.company_info, name='company-info'),
