@@ -20,8 +20,8 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'cloudinary_storage',
     'django.contrib.staticfiles',
+    'cloudinary_storage',
     'cloudinary',
     'core',
 ]
@@ -88,8 +88,6 @@ USE_TZ = True
 # STATIC FILES
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-
-
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 
@@ -100,12 +98,12 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # CLOUDINARY
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME', 'dprsdoowy'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY', '422393287549515'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET', ''),
 }
 
-# На продакшене (DEBUG=False) используем Cloudinary для медиа
+# На продакшене используем Cloudinary для медиа
 if not DEBUG:
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
