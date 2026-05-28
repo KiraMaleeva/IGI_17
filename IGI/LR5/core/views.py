@@ -208,16 +208,12 @@ def service_delete(request, pk):
 @login_required
 def order_list(request):
     if request.user.is_superuser:
-        # Админ видит все
         orders = Order.objects.all()
     elif is_master(request.user):
-        # Мастер видит свои заказы
         orders = Order.objects.filter(master=request.user.master)
     elif is_client(request.user):
-        # Клиент видит свои заказы
         orders = Order.objects.filter(client=request.user.client)
     else:
-        # Обычный пользователь без роли
         orders = Order.objects.none()
     
     return render(request, 'core/order_list.html', {'orders': orders})
@@ -291,7 +287,7 @@ def client_dashboard(request):
     return render(request, 'core/client_dashboard.html', context)
 
 
-# ───── Общие страницы (без изменений) ─────
+# ───── Общие страницы ─────
 
 def article_list(request):
     articles = Article.objects.all()

@@ -31,7 +31,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    '.onrender.com',  # Для Render
+    '.onrender.com',
 ]
 
 
@@ -166,3 +166,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Static files для продакшена
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Для отдачи медиа-файлов на Render
+import re
+from django.views.static import serve
