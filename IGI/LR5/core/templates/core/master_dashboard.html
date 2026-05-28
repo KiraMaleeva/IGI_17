@@ -1,0 +1,55 @@
+{% extends 'core/base.html' %}
+{% block title %}Личный кабинет мастера{% endblock %}
+{% block content %}
+<h2>Личный кабинет мастера</h2>
+
+<p><strong>Имя:</strong> {{ master.user.get_full_name|default:master.user.username }}</p>
+<p><strong>Телефон:</strong> {{ master.phone }}</p>
+<p><strong>Специализации:</strong> 
+    {% for spec in master.specializations.all %}
+        {{ spec.name }}{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+</p>
+
+<hr>
+
+<h3>Статистика</h3>
+<ul>
+    <li>Новых заказов: {{ orders_new }}</li>
+    <li>В работе: {{ orders_in_progress }}</li>
+    <li>Выполнено: {{ orders_done }}</li>
+</ul>
+
+<hr>
+
+<h3>Мои заказы</h3>
+{% for order in orders %}
+<div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
+    <h4>Заказ #{{ order.id }}</h4>
+    <p><strong>Клиент:</strong> {{ order.client }}</p>
+    <p><strong>Телефон:</strong> {{ order.client.phone }}</p>
+    <p><strong>Статус:</strong> {{ order.get_status_display }}</p>
+    <p><strong>Дата:</strong> {{ order.created_at|date:"d/m/Y H:i" }}</p>
+    
+    <p><strong>Услуги:</strong></p>
+    <ul>
+        {% for service in order.services.all %}
+        <li>{{ service.name }} — {{ service.price }} руб.</li>
+        {% endfor %}
+    </ul>
+    
+    {% if order.parts.exists %}
+    <p><strong>Запчасти:</strong></p>
+    <ul>
+        {% for part in order.parts.all %}
+        <li>{{ part.name }} — {{ part.price }} руб.</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    
+    <p><strong>Итого:</strong> {{ order.total_price }} руб.</p>
+</div>
+{% empty %}
+<p>У вас пока нет заказов.</p>
+{% endfor %}
+{% endblock %}

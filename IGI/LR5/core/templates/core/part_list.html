@@ -1,54 +1,49 @@
 {% extends 'core/base.html' %}
-{% block title %}Услуги{% endblock %}
+{% block title %}Запчасти{% endblock %}
 {% block content %}
-<h2>Наши услуги</h2>
+<h2>Запчасти</h2>
 
 <!-- Фильтры и сортировка -->
 <form method="get">
     <input type="text" name="q" placeholder="Поиск..." value="{{ request.GET.q }}">
     
     <select name="type">
-        <option value="">Все категории</option>
-        {% for st in service_types %}
-        <option value="{{ st.id }}" {% if request.GET.type == st.id|stringformat:"s" %}selected{% endif %}>
-            {{ st.name }}
+        <option value="">Все типы</option>
+        {% for pt in part_types %}
+        <option value="{{ pt.id }}" {% if request.GET.type == pt.id|stringformat:"s" %}selected{% endif %}>
+            {{ pt.name }}
         </option>
         {% endfor %}
     </select>
-    
-    <input type="number" name="min_price" placeholder="Цена от" value="{{ request.GET.min_price }}" step="0.01">
-    <input type="number" name="max_price" placeholder="Цена до" value="{{ request.GET.max_price }}" step="0.01">
     
     <select name="sort">
         <option value="name">По названию</option>
         <option value="price" {% if request.GET.sort == 'price' %}selected{% endif %}>Дешевле</option>
         <option value="-price" {% if request.GET.sort == '-price' %}selected{% endif %}>Дороже</option>
+        <option value="quantity" {% if request.GET.sort == 'quantity' %}selected{% endif %}>По количеству ↑</option>
+        <option value="-quantity" {% if request.GET.sort == '-quantity' %}selected{% endif %}>По количеству ↓</option>
     </select>
     
     <button type="submit">Найти</button>
-    <a href="{% url 'service-list' %}">Сбросить</a>
+    <a href="{% url 'part-list' %}">Сбросить</a>
 </form>
 
-{% if user.is_superuser %}
-<p><a href="{% url 'service-add' %}">➕ Добавить услугу</a></p>
-{% endif %}
+<p><a href="{% url 'part-add' %}">➕ Добавить запчасть</a></p>
 
 <hr>
 
-{% for service in services %}
+{% for part in parts %}
 <div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
-    <h3>{{ service.name }}</h3>
-    <p>Цена: {{ service.price }} руб.</p>
-    <p>Категория: {{ service.service_type }}</p>
-    <a href="{% url 'service-detail' service.pk %}">Подробнее</a>
+    <h3>{{ part.name }}</h3>
+    <p>Цена: {{ part.price }} руб.</p>
+    <p>Тип: {{ part.part_type }}</p>
+    <p>На складе: {{ part.quantity }} шт.</p>
     
-    {% if user.is_superuser %}
-    | <a href="{% url 'service-edit' service.pk %}">Редактировать</a>
-    | <a href="{% url 'service-delete' service.pk %}">Удалить</a>
-    {% endif %}
+    <a href="{% url 'part-edit' part.pk %}">Редактировать</a> |
+    <a href="{% url 'part-delete' part.pk %}">Удалить</a>
 </div>
 {% empty %}
-<p>Услуги не найдены.</p>
+<p>Запчасти не найдены.</p>
 {% endfor %}
 
 <!-- Пагинация -->

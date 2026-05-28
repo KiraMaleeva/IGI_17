@@ -52,6 +52,38 @@ class Specialization(models.Model):
         return self.name
 
 
+# ───── ДОБАВЛЯЕМ ЗАПЧАСТИ ─────
+
+class PartType(models.Model):
+    """Виды запчастей"""
+    name = models.CharField('Вид запчасти', max_length=100)
+
+    class Meta:
+        verbose_name = 'Вид запчасти'
+        verbose_name_plural = 'Виды запчастей'
+
+    def __str__(self):
+        return self.name
+
+
+class Part(models.Model):
+    """Запчасти"""
+    name = models.CharField('Название', max_length=200)
+    price = models.DecimalField('Цена', max_digits=10, decimal_places=2,
+                                validators=[MinValueValidator(0)])
+    part_type = models.ForeignKey(PartType, on_delete=models.CASCADE,
+                                  verbose_name='Вид')
+    quantity = models.IntegerField('Количество на складе', default=0,
+                                   validators=[MinValueValidator(0)])
+
+    class Meta:
+        verbose_name = 'Запчасть'
+        verbose_name_plural = 'Запчасти'
+
+    def __str__(self):
+        return f'{self.name} ({self.price} руб.)'
+
+
 # ───── Основные сущности ─────
 
 class Service(models.Model):
@@ -74,8 +106,8 @@ class Master(models.Model):
                                 verbose_name='Пользователь')
     phone = models.CharField('Телефон', max_length=20, validators=[phone_validator])
     birth_date = models.DateField('Дата рождения', validators=[validate_age_18])
-    specializations = models.ManyToManyField(Specialization,
-                                             verbose_name='Специализации')
+    specializations = models.ManyToManyField(Specialization, verbose_name='Специализации')
+    photo = models.ImageField('Фото', upload_to='masters/', blank=True)
 
     class Meta:
         verbose_name = 'Мастер'
@@ -112,6 +144,7 @@ class Order(models.Model):
     master = models.ForeignKey(Master, on_delete=models.CASCADE,
                                verbose_name='Мастер')
     services = models.ManyToManyField(Service, verbose_name='Услуги')
+    parts = models.ManyToManyField(Part, verbose_name='Запчасти', blank=True)  # ← ДОБАВЛЕНО
     status = models.CharField('Статус', max_length=20,
                               choices=STATUS_CHOICES, default='new')
     created_at = models.DateTimeField('Создан', auto_now_add=True)
@@ -124,7 +157,10 @@ class Order(models.Model):
         return f'Заказ #{self.pk} — {self.client}'
 
     def total_price(self):
-        return sum(s.price for s in self.services.all())
+        """Полная стоимость: услуги + запчасти"""
+        services_total = sum(s.price for s in self.services.all())
+        parts_total = sum(p.price for p in self.parts.all())
+        return services_total + parts_total
 
 
 # ───── Общие страницы ─────

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Service, Order, Review
+from .models import Service, Order, Review, Part, PartType
 
 class ServiceForm(forms.ModelForm):
     class Meta:
@@ -14,11 +14,55 @@ class ServiceForm(forms.ModelForm):
             'price': 'Цена (руб.)',
             'service_type': 'Тип услуги',
         }
+    
+    def clean_name(self):
+        name = self.cleaned_data.get('name')
+        if not name or not name.strip():
+            raise forms.ValidationError('Название не может быть пустым')
+        return name.strip()
+    
+    def clean_price(self):
+        price = self.cleaned_data.get('price')
+        if price is None or price <= 0:
+            raise forms.ValidationError('Цена должна быть больше 0')
+        return price
+    
 
-class OrderForm(forms.ModelForm):
+class PartForm(forms.ModelForm):
+    class Meta:
+        model = Part
+        fields = ['name', 'price', 'part_type', 'quantity']
+        widgets = {
+            'name': forms.TextInput(attrs={'placeholder': 'Название запчасти', 'required': True}),
+            'price': forms.NumberInput(attrs={'min': 0, 'step': '0.01', 'required': True}),
+            'quantity': forms.NumberInput(attrs={'min': 0, 'required': True}),
+        }
+        labels = {
+            'name': 'Название',
+            'price': 'Цена (руб.)',
+            'part_type': 'Тип запчасти',
+            'quantity': 'Количество на складе',
+        }    
+
+
+class OrderAdminForm(forms.ModelForm):
     class Meta:
         model = Order
-        fields = ['client', 'master', 'services', 'status']
+        fields = ['client', 'master', 'services', 'parts', 'status']
+
+
+class OrderClientForm(forms.ModelForm):
+    class Meta:
+        model = Order
+        fields = ['master', 'services']
+        widgets = {
+            'services': forms.CheckboxSelectMultiple(),
+        }
+        labels = {
+            'master': 'Выберите мастера',
+            'services': 'Выберите услуги',
+        }
+
 
 class ReviewForm(forms.ModelForm):
     class Meta:

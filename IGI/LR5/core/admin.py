@@ -17,6 +17,18 @@ class SpecializationAdmin(admin.ModelAdmin):
     list_display = ['name']
 
 
+@admin.register(PartType)
+class PartTypeAdmin(admin.ModelAdmin):
+    list_display = ['name']
+
+
+@admin.register(Part)
+class PartAdmin(admin.ModelAdmin):
+    list_display = ['name', 'price', 'part_type', 'quantity']
+    list_filter = ['part_type']
+    search_fields = ['name']
+    
+
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
     list_display = ['name', 'price', 'service_type']
@@ -40,7 +52,7 @@ class ClientAdmin(admin.ModelAdmin):
 class OrderAdmin(admin.ModelAdmin):
     list_display = ['id', 'client', 'master', 'status', 'created_at']
     list_filter = ['status', 'created_at']
-    filter_horizontal = ['services']
+    filter_horizontal = ['services', 'parts']
 
 
 @admin.register(Article)

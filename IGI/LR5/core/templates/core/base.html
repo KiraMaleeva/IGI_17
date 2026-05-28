@@ -9,6 +9,7 @@
     <header>
         <h1>Автосервис "Профи"</h1>
         <nav>
+            {# Доступно всем #}
             <a href="{% url 'home' %}">Главная</a> |
             <a href="{% url 'service-list' %}">Услуги</a> |
             <a href="{% url 'article-list' %}">Новости</a> |
@@ -21,10 +22,33 @@
             <a href="{% url 'privacy-policy' %}">Политика</a>
             
             {% if user.is_authenticated %}
-                | <a href="{% url 'order-list' %}">Заказы</a>
-                | <a href="{% url 'stats' %}">Статистика</a>
-                | <a href="{% url 'logout' %}">Выйти ({{ user.username }})</a>
+                {% if user.is_superuser %}
+                    {# Только для администратора #}
+                    | <a href="{% url 'admin:index' %}">Админка</a>
+                    | <a href="{% url 'order-list' %}">Все заказы</a>
+                    | <a href="{% url 'part-list' %}">Запчасти</a>
+                    | <a href="{% url 'stats' %}">Статистика</a>
+                
+                {% elif user.master %}
+                    {# Только для мастера #}
+                    | <a href="{% url 'master-dashboard' %}">Мой кабинет</a>
+                    | <a href="{% url 'order-list' %}">Мои заказы</a>
+                
+                {% elif user.client %}
+                    {# Только для клиента #}
+                    | <a href="{% url 'client-dashboard' %}">Личный кабинет</a>
+                    | <a href="{% url 'order-add' %}">Заказать услугу</a>
+                {% endif %}
+                
+                {# Выход (для всех авторизованных) #}
+                | <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" style="background: none; border: none; color: blue; text-decoration: underline; cursor: pointer; padding: 0; font: inherit;">
+                        Выйти ({{ user.username }})
+                    </button>
+                  </form>
             {% else %}
+                {# Для неавторизованных #}
                 | <a href="{% url 'register' %}">Регистрация</a>
                 | <a href="{% url 'login' %}">Войти</a>
             {% endif %}
@@ -38,7 +62,7 @@
 
     <footer>
         <hr>
-        <p>&copy; 2024 Автосервис "Профи"</p>
+        <p>&copy; 2026 Автосервис "Профи"</p>
     </footer>
 </body>
 </html>

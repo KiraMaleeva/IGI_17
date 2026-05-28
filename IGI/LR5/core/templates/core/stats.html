@@ -27,10 +27,62 @@
 <p><strong>Самый популярный тип услуг:</strong> {{ most_ordered_type.name }}</p>
 {% endif %}
 
+<h3>Статистика по клиентам</h3>
+{% if clients_stats %}
+<table border="1" cellpadding="5" style="border-collapse: collapse; width: 100%;">
+    <thead>
+        <tr style="background-color: #f0f0f0;">
+            <th>№</th>
+            <th>Клиент</th>
+            <th>Телефон</th>
+            <th>Тип авто</th>
+            <th>Итоговая сумма заказов (руб.)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for client in clients_stats %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ client.user.get_full_name|default:client.user.username }}</td>
+            <td>{{ client.phone }}</td>
+            <td>{{ client.car_type|default:"Не указан" }}</td>
+            <td>{{ client.total_spent|default:0|floatformat:2 }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Нет данных по клиентам с заказами.</p>
+{% endif %}
+
+<h3>Статистика по запчастям</h3>
+{% with total_parts=part_types|length %}
+<p>Всего типов запчастей: {{ part_types_stats.count }}</p>
+{% endwith %}
+
+<table border="1" cellpadding="5" style="border-collapse: collapse; width: 100%;">
+    <thead>
+        <tr style="background-color: #f0f0f0;">
+            <th>Тип запчасти</th>
+            <th>Количество позиций</th>
+            <th>Общее кол-во на складе</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for ptype in part_types_stats %}
+        <tr>
+            <td>{{ ptype.name }}</td>
+            <td>{{ ptype.part_count }}</td>
+            <td>{{ ptype.total_quantity }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
 <h3>API: Погода в Минске</h3>
 {% if weather %}
-<p>Температура: {{ weather.main.temp }}°C</p>
-<p>Описание: {{ weather.weather.0.description }}</p>
+<p>Температура: {{ weather.temp }}°C</p>
+<p>Описание: {{ weather.description }}</p>
 {% else %}
 <p>Не удалось загрузить данные о погоде</p>
 {% endif %}

@@ -1,7 +1,7 @@
 services:
   web:
     build: .
-    platform: linux/amd64  # ДОБАВИТЬ ЭТУ СТРОКУ
+    platform: linux/amd64
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
@@ -9,13 +9,12 @@ services:
       - "8000:8000"
     environment:
       - DEBUG=True
-    # Если нужна БД, добавьте:
     depends_on:
       - db
   
   db:
     image: postgres:15-alpine
-    platform: linux/amd64  # ДОБАВИТЬ ЭТУ СТРОКУ
+    platform: linux/amd64
     environment:
       POSTGRES_USER: your_user
       POSTGRES_PASSWORD: your_password

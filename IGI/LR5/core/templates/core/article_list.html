@@ -5,6 +5,12 @@
 {% for article in articles %}
 <div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
     <h3>{{ article.title }}</h3>
+    
+    {# Картинка (если есть) #}
+    {% if article.image %}
+    <img src="{{ article.image.url }}" alt="{{ article.title }}" style="max-width: 300px;">
+    {% endif %}
+    
     <p>{{ article.summary }}</p>
     <p><small>{{ article.published|date:"d/m/Y" }}</small></p>
 </div>

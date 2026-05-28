@@ -2,12 +2,77 @@
 {% block title %}Контакты{% endblock %}
 {% block content %}
 <h2>Контакты</h2>
+
+<h3>Руководство</h3>
 {% for contact in contacts %}
-<div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
-    <h3>{{ contact.name }}</h3>
-    <p>{{ contact.role }}</p>
-    <p>Телефон: {{ contact.phone }}</p>
-    <p>Email: {{ contact.email }}</p>
+<div style="border: 1px solid #ccc; padding: 15px; margin: 15px 0; display: flex; align-items: flex-start; gap: 20px;">
+    {# Фото сотрудника #}
+    <div style="flex-shrink: 0;">
+        {% if contact.photo %}
+            <img src="{{ contact.photo.url }}" 
+                 alt="{{ contact.name }}" 
+                 style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%; border: 3px solid #ddd;">
+        {% else %}
+            {# Заглушка, если нет фото #}
+            <div style="width: 150px; height: 150px; background-color: #e0e0e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid #ddd;">
+                <span style="font-size: 48px; color: #999;">👤</span>
+            </div>
+        {% endif %}
+    </div>
+    
+    {# Информация о сотруднике #}
+    <div style="flex-grow: 1;">
+        <h3 style="margin-top: 0;">{{ contact.name }}</h3>
+        <p><strong>Должность:</strong> {{ contact.role }}</p>
+        <p><strong>Телефон:</strong> <a href="tel:{{ contact.phone }}">{{ contact.phone }}</a></p>
+        <p><strong>Email:</strong> <a href="mailto:{{ contact.email }}">{{ contact.email }}</a></p>
+    </div>
 </div>
+{% empty %}
+<p>Нет контактов руководства.</p>
 {% endfor %}
+
+<hr style="margin: 30px 0;">
+
+<h3>Наши мастера</h3>
+{% for master in masters %}
+<div style="border: 1px solid #ccc; padding: 15px; margin: 15px 0; display: flex; align-items: flex-start; gap: 20px;">
+    {# Фото мастера (если добавите поле в модель Master) #}
+    <div style="flex-shrink: 0;">
+        {% if master.photo %}
+            <img src="{{ master.photo.url }}" 
+                 alt="{{ master.user.get_full_name|default:master.user.username }}" 
+                 style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%; border: 3px solid #4CAF50;">
+        {% else %}
+            {# Заглушка для мастеров #}
+            <div style="width: 150px; height: 150px; background-color: #e8f5e9; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid #4CAF50;">
+                <span style="font-size: 48px; color: #4CAF50;">🔧</span>
+            </div>
+        {% endif %}
+    </div>
+    
+    {# Информация о мастере #}
+    <div style="flex-grow: 1;">
+        <h3 style="margin-top: 0;">{{ master.user.get_full_name|default:master.user.username }}</h3>
+        <p><strong>Специализация:</strong> 
+            {% for spec in master.specializations.all %}
+                <span style="background-color: #4CAF50; color: white; padding: 3px 8px; border-radius: 3px; margin-right: 5px; display: inline-block;">
+                    {{ spec.name }}
+                </span>
+            {% endfor %}
+        </p>
+        <p><strong>Телефон:</strong> <a href="tel:{{ master.phone }}">{{ master.phone }}</a></p>
+        <p><strong>Email:</strong> 
+            {% if master.user.email %}
+                <a href="mailto:{{ master.user.email }}">{{ master.user.email }}</a>
+            {% else %}
+                <em style="color: #999;">не указан</em>
+            {% endif %}
+        </p>
+    </div>
+</div>
+{% empty %}
+<p>Нет мастеров в списке.</p>
+{% endfor %}
+
 {% endblock %}
