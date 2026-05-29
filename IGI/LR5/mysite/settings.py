@@ -105,17 +105,15 @@ LOGGING = {
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# CLOUDINARY
+# CLOUDINARY КОНФИГУРАЦИЯ
+CLOUDINARY_CONFIG = {
+    'cloud_name': 'dprsdoowy',
+    'api_key': '422393287549515',
+    'api_secret': '5vtDGjwLv5TbSLIec2ZAKspn2GY',
+    'secure': True
+}
+
 import cloudinary
-
-cloudinary.config(
-    cloud_name='dprsdoowy',
-    api_key='422393287549515',
-    api_secret='5vtDGjwLv5TbSLIec2ZAKspn2GY',
-    secure=True
-)
-
+cloudinary.config(**CLOUDINARY_CONFIG)
 
 DEFAULT_FILE_STORAGE = 'core.storage.MediaCloudinaryStorage'
-
-print("✅ Cloudinary настроен:", cloudinary.config().cloud_name)
