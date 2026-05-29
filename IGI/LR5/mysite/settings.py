@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-8x_!4w4prcg*j-dj0&6=pb%(uj6*c^duzk4&fjixv&+!46*c3$'
 
-DEBUG = os.getenv('DEBUG', 'True') == 'True'
+DEBUG = False if os.getenv('DATABASE_URL') else True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.onrender.com']
 
@@ -21,14 +21,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'cloudinary_storage',
-    'cloudinary',
     'core',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # ← СРАЗУ после Security
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -97,14 +95,16 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 
 # CLOUDINARY
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME', 'dprsdoowy'),
-    'API_KEY': os.getenv('CLOUDINARY_API_KEY', '422393287549515'),
-    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET', '5vtDGjwLv5TbSLIec2ZAKspn2GY'),
-}
+import cloudinary
 
-# На продакшене используем Cloudinary для медиа
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+cloudinary.config(
+    cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME', 'dprsdoowy'),
+    api_key=os.getenv('CLOUDINARY_API_KEY', '422393287549515'),
+    api_secret=os.getenv('CLOUDINARY_API_SECRET', '5vtDGjwLv5TbSLIec2ZAKspn2GY'),
+)
+
+# Используем кастомный storage
+DEFAULT_FILE_STORAGE = 'core.cloudinary_storage.CloudinaryStorage'
 
 
 # OTHER SETTINGS
