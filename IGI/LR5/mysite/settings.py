@@ -45,8 +45,8 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.auth',
+                'django.template.context_processors.messages',
             ],
         },
     },
@@ -54,7 +54,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mysite.wsgi.application'
 
-# Database
 if os.getenv('DATABASE_URL'):
     DATABASES = {
         'default': dj_database_url.config(
@@ -82,14 +81,10 @@ TIME_ZONE = 'Europe/Minsk'
 USE_I18N = True
 USE_TZ = True
 
-
-# STATIC FILES
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
-
-# MEDIA FILES
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -98,16 +93,17 @@ MEDIA_ROOT = BASE_DIR / 'media'
 import cloudinary
 
 cloudinary.config(
-    cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME', 'dprsdoowy'),
-    api_key=os.getenv('CLOUDINARY_API_KEY', '422393287549515'),
-    api_secret=os.getenv('CLOUDINARY_API_SECRET', '5vtDGjwLv5TbSLIec2ZAKspn2GY'),
+    cloud_name='dprsdoowy',
+    api_key='422393287549515',
+    api_secret='5vtDGjwLv5TbSLIec2ZAKspn2GY',
+    secure=True
 )
 
-# Используем кастомный storage
-DEFAULT_FILE_STORAGE = 'core.cloudinary_storage.CloudinaryStorage'
 
+DEFAULT_FILE_STORAGE = 'core.storage.MediaCloudinaryStorage'
 
-# OTHER SETTINGS
+print("✅ Cloudinary настроен:", cloudinary.config().cloud_name)
+
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
