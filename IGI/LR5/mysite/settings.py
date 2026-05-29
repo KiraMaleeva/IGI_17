@@ -122,3 +122,16 @@ LOGGING = {
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ═══════════════════════════════════════════════════════════
+# ОТЛАДКА (ВРЕМЕННО — УДАЛИТЬ ПОСЛЕ ПРОВЕРКИ)
+# ═══════════════════════════════════════════════════════════
+
+print("=" * 50)
+print("DEBUG:", DEBUG)
+print("CLOUDINARY_STORAGE:", CLOUDINARY_STORAGE)
+if not DEBUG:
+    print("DEFAULT_FILE_STORAGE:", DEFAULT_FILE_STORAGE if 'DEFAULT_FILE_STORAGE' in dir() else 'NOT SET')
+else:
+    print("DEFAULT_FILE_STORAGE: NOT SET (DEBUG=True)")
+print("=" * 50)
