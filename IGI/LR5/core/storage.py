@@ -10,12 +10,10 @@ class MediaCloudinaryStorage(Storage):
         return File(open(name, mode))
     
     def _save(self, name, content):
-        """Загружает файл на Cloudinary"""
         response = cloudinary.uploader.upload(content)
         return response['public_id']
     
     def url(self, name):
-        """Возвращает URL с Cloudinary"""
         return cloudinary.CloudinaryImage(name).build_url()
     
     def exists(self, name):

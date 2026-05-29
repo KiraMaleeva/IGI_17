@@ -90,6 +90,21 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {'class': 'logging.StreamHandler'},
+    },
+    'root': {'handlers': ['console'], 'level': 'INFO'},
+}
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
 # CLOUDINARY
 import cloudinary
 
@@ -104,17 +119,3 @@ cloudinary.config(
 DEFAULT_FILE_STORAGE = 'core.storage.MediaCloudinaryStorage'
 
 print("✅ Cloudinary настроен:", cloudinary.config().cloud_name)
-
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {'class': 'logging.StreamHandler'},
-    },
-    'root': {'handlers': ['console'], 'level': 'INFO'},
-}
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
