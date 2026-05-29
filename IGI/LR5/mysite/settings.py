@@ -100,12 +100,11 @@ MEDIA_ROOT = BASE_DIR / 'media'
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME', 'dprsdoowy'),
     'API_KEY': os.getenv('CLOUDINARY_API_KEY', '422393287549515'),
-    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET', ''),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET', '5vtDGjwLv5TbSLIec2ZAKspn2GY'),
 }
 
 # На продакшене используем Cloudinary для медиа
-if not DEBUG:
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 
 # OTHER SETTINGS
@@ -122,16 +121,3 @@ LOGGING = {
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# ═══════════════════════════════════════════════════════════
-# ОТЛАДКА (ВРЕМЕННО — УДАЛИТЬ ПОСЛЕ ПРОВЕРКИ)
-# ═══════════════════════════════════════════════════════════
-
-print("=" * 50)
-print("DEBUG:", DEBUG)
-print("CLOUDINARY_STORAGE:", CLOUDINARY_STORAGE)
-if not DEBUG:
-    print("DEFAULT_FILE_STORAGE:", DEFAULT_FILE_STORAGE if 'DEFAULT_FILE_STORAGE' in dir() else 'NOT SET')
-else:
-    print("DEFAULT_FILE_STORAGE: NOT SET (DEBUG=True)")
-print("=" * 50)
